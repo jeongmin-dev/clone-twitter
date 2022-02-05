@@ -1,13 +1,15 @@
 import { authService, dbService } from "fbase";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
+import styled from "styled-components";
 
-export default ({ userObj }) => {
+export default ({ refreshUser, userObj }) => {
   const history = useHistory();
   const [newDisplayName, setNewDisplayName] = useState(userObj.displayName);
   const onLogOutClick = () => {
     authService.signOut();
     history.push("/");
+    refreshUser();
   };
 
   const getMyNweets = async () => {
@@ -27,26 +29,40 @@ export default ({ userObj }) => {
     } = event;
     setNewDisplayName(value);
   };
-  const onSubmit = async(event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
-    if(userObj.displayName !== newDisplayName) {
+    if (userObj.displayName !== newDisplayName) {
       await userObj.updateProfile({
-        displayName: newDisplayName
-      })
+        displayName: newDisplayName,
+      });
+      refreshUser();
     }
   };
   return (
-    <>
-      <form onSubmit={onSubmit}>
+    <div className="container">
+      <ProfileForm onSubmit={onSubmit}>
         <input
           onChange={onChange}
           type="text"
           placeholder="Display Name"
           value={newDisplayName}
+          autoFocus
+          className="formInput"
         />
-        <input type="submit" value="Update Profile" />
-      </form>
-      <button onClick={onLogOutClick}>Logout</button>
-    </>
+        <input
+          type="submit"
+          value="Update Profile"
+          className="formBtn"
+          style={{
+            marginTop: 10,
+          }}
+        />
+      </ProfileForm>
+      <span className="formBtn cancelBtn logOut" onClick={onLogOutClick}>
+        Log Out
+      </span>
+    </div>
   );
 };
+
+const ProfileForm = styled.form``;
